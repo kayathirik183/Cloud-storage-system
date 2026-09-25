@@ -6,57 +6,167 @@
     <title>Cloud-Based File Storage System</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f7f6; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 500px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; text-align: center; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; box-sizing: border-box; font-size: 16px; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .container { width: 100%; max-width: 650px; background: white; padding: 25px; border-radius: 8px; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; margin-bottom: 25px; }
+        h3 { margin-top: 20px; color: #444; border-bottom: 2px solid #007bff; padding-bottom: 5px;}
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; font-size: 15px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background-color: #0056b3; }
-        .file-list { margin-top: 20px; padding: 15px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd; }
-        ul { padding-left: 20px; margin: 0; }
-        li { margin-bottom: 8px; color: #555; }
+        .section { margin-bottom: 25px; padding: 15px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 6px; }
+        .file-list { margin-top: 15px; padding: 15px; background: #fff; border-radius: 4px; border: 1px solid #ddd; min-height: 50px; }
+        ul { padding-left: 0; list-style: none; margin: 0; }
+        li { margin-bottom: 12px; color: #444; font-size: 15px; display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+        .badge { background: #e3f2fd; color: #0d47a1; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
+        .view-btn { width: auto; padding: 5px 10px; margin: 0; background-color: #28a745; font-size: 12px; }
+        .view-btn:hover { background-color: #218838; }
+        .preview-box { display: none; margin-top: 15px; padding: 15px; background: #e9ecef; border-left: 5px solid #28a745; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Cloud File Storage System</h2>
+    <h2>☁ Cloud-Based File Storage System</h2>
     
-    <label style="font-weight: bold; color: #555;">Choose File to Upload:</label>
-    <input type="file" id="fileInput">
-    <button onclick="uploadFile()">Upload File</button>
+    <!-- FEATURE 1: Create Cloud Storage Slot -->
+    <div class="section">
+        <h3>1. Create Storage Bucket</h3>
+        <label style="font-weight: bold; color: #555;">New Storage Area Name:</label>
+        <input type="text" id="bucketName" placeholder="e.g., MyPersonalDrive, ProjectFiles">
+        <button onclick="createStorage()">Create Storage Slot</button>
+        <p style="font-size: 13px; color: #666;">Active Storage: <span id="activeBucket" style="font-weight:bold; color:#007bff;">None</span></p>
+    </div>
 
-    <h3>Stored Files</h3>
-    <div id="fileList" class="file-list">No files uploaded yet.</div>
+    <!-- FEATURE 2 & 3: Upload File & Organize via Folders -->
+    <div class="section">
+        <h3>2. Upload & Organize Files</h3>
+        <label style="font-weight: bold; color: #555;">Select Target Folder:</label>
+        <select id="folderSelect">
+            <option value="Root">Root (No Folder)</option>
+            <option value="Documents">📁 Documents</option>
+            <option value="Images">📁 Images</option>
+            <option value="Videos">📁 Videos</option>
+        </select>
+
+        <!-- FEATURE 5: Configure Access Permissions -->
+        <label style="font-weight: bold; color: #555; margin-top: 10px; display:block;">Set User Access Permission:</label>
+        <select id="permissionSelect">
+            <option value="Private (Owner Only)">🔒 Private (Owner Only)</option>
+            <option value="Shared (View Only)">👁 Shared (View Only)</option>
+            <option value="Public (Full Access)">🌐 Public (Full Access)</option>
+        </select>
+
+        <label style="font-weight: bold; color: #555; margin-top: 10px; display:block;">Choose File:</label>
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">Submit File</button> <!-- Changed text to 'Submit File' based on problem statement -->
+    </div>
+
+    <!-- FEATURE 4: Access Files Securely (Display & View) -->
+    <div class="section">
+        <h3>3. Secure File Access Console</h3>
+        <div id="fileList" class="file-list">No storage initialized or no files uploaded yet.</div>
+        
+        <!-- File Preview Panel -->
+        <div id="previewPanel" class="preview-box">
+            <strong style="color: #218838;">📄 File Preview Console</strong>
+            <p id="previewContent" style="margin: 5px 0 0 0; font-family: monospace; font-size: 14px;"></p>
+        </div>
+    </div>
 </div>
 
 <script>
-    let cloudStorage = [];
+    let isStorageCreated = false;
+    let cloudStorageBucket = "";
+    let uploadedFiles = [];
+
+    function createStorage() {
+        const bucketInput = document.getElementById('bucketName');
+        if (bucketInput.value.trim() === "") {
+            alert("❌ Please enter a valid Storage Area Name!");
+            return;
+        }
+        cloudStorageBucket = bucketInput.value.trim();
+        isStorageCreated = true;
+        document.getElementById('activeBucket').innerText = cloudStorageBucket + " (Securely Initialized)";
+        alert("✔ Success: Cloud Storage '" + cloudStorageBucket + "' created securely!");
+        bucketInput.value = "";
+        displayFiles();
+    }
 
     function uploadFile() {
-        const fileInput = document.getElementById('fileInput');
-        
-        if (fileInput.files.length === 0) {
-            alert("Please select a file first!");
+        if (!isStorageCreated) {
+            alert("❌ Error: Please create a Cloud Storage Bucket first!");
             return;
         }
 
-        // FIX: Extracting the correct file name from the uploaded file object
-        const fileName = fileInput.files[0].name;
+        const fileInput = document.getElementById('fileInput');
+        const folderSelect = document.getElementById('folderSelect');
+        const permissionSelect = document.getElementById('permissionSelect');
         
-        cloudStorage.push(fileName);
-        alert("✔ Success: " + fileName + " uploaded successfully!");
+        if (fileInput.files.length === 0) {
+            alert("❌ Please select a file first!");
+            return;
+        }
+
+        const fileName = fileInput.files[0].name; 
+        const targetFolder = folderSelect.value;
+        const accessPermission = permissionSelect.value;
+        
+        const fileObject = {
+            name: fileName,
+            folder: targetFolder,
+            permission: accessPermission,
+            secureToken: 'SEC-' + Math.random().toString(36).substr(2, 9).toUpperCase()
+        };
+
+        uploadedFiles.push(fileObject);
+        alert("✔ Success: " + fileName + " securely stored inside folder [" + targetFolder + "]!");
         
         displayFiles();
-        fileInput.value = ""; // Reset input slot
+        fileInput.value = ""; 
     }
 
     function displayFiles() {
         const fileListDiv = document.getElementById('fileList');
-        if (cloudStorage.length === 0) {
-            fileListDiv.innerHTML = "No files uploaded yet.";
-        } else {
-            fileListDiv.innerHTML = "<ul>" + cloudStorage.map(file => `<li>📄 ${file}</li>`).join('') + "</ul>";
+        
+        if (!isStorageCreated) {
+            fileListDiv.innerHTML = "<i>No storage initialized yet. Please create a storage bucket above.</i>";
+            return;
         }
+
+        if (uploadedFiles.length === 0) {
+            fileListDiv.innerHTML = "📂 <b>" + cloudStorageBucket + "</b> is empty. No files uploaded yet.";
+        } else {
+            let htmlContent = `<p style='margin:0 0 10px 0; font-weight:bold; color:#333;'>📁 Storage Bucket: ${cloudStorageBucket}</p><ul>`;
+            
+            uploadedFiles.forEach((file, index) => {
+                htmlContent += `
+                    <li>
+                        <span>🔑 <small style="color:gray; font-family:monospace;">[${file.secureToken}]</small> <b>${file.folder}/</b>${file.name}</span>
+                        <div>
+                            <span class="badge">${file.permission}</span>
+                            <button class="view-btn" onclick="viewFile(${index})">👁 View</button>
+                        </div>
+                    </li>`;
+            });
+            
+            htmlContent += "</ul>";
+            fileListDiv.innerHTML = htmlContent;
+        }
+    }
+
+    // Function to simulate securely viewing the file
+    function viewFile(index) {
+        const file = uploadedFiles[index];
+        const previewPanel = document.getElementById('previewPanel');
+        const previewContent = document.getElementById('previewContent');
+        
+        previewPanel.style.display = "block";
+        previewContent.innerHTML = `
+            <strong>Status:</strong> Decrypted Securely via Token [${file.secureToken}]<br>
+            <strong>Path:</strong> cloud://data-center/${cloudStorageBucket}/${file.folder}/${file.name}<br>
+            <strong>Access Level:</strong> ${file.permission}<br>
+            <span style="color:#666;"><i>(Note: Simulation file stream opened successfully)</i></span>
+        `;
     }
 </script>
 
