@@ -17,10 +17,9 @@
         ul { padding-left: 0; list-style: none; margin: 0; }
         li { margin-bottom: 12px; color: #444; font-size: 15px; display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
         .badge { background: #e3f2fd; color: #0d47a1; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
-        .view-btn { width: auto; padding: 5px 10px; margin: 0; background-color: #28a745; font-size: 12px; color: white; border-radius: 4px; border: none; cursor: pointer; }
+        .view-btn { width: auto; padding: 5px 10px; margin: 0; background-color: #28a745; font-size: 12px; }
         .view-btn:hover { background-color: #218838; }
         .preview-box { display: none; margin-top: 15px; padding: 15px; background: #e9ecef; border-left: 5px solid #28a745; border-radius: 4px; }
-        .role-badge { display: inline-block; padding: 5px 10px; font-weight: bold; border-radius: 4px; background: #ffc107; color: #000; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -28,17 +27,6 @@
 <div class="container">
     <h2>☁ Cloud-Based File Storage System</h2>
     
-    <!-- FEATURE: Admin vs User Role Switching Simulated -->
-    <div class="section" style="background: #fff3cd; border-color: #ffeba2;">
-        <h3>🔑 Simulated User Role Access</h3>
-        <label style="font-weight: bold; color: #555;">Current Logged-in Role:</label>
-        <select id="currentUserRole" onchange="toggleUserRole()">
-            <option value="Regular User">👤 Regular User (Normal Access)</option>
-            <option value="Admin">👑 Administrator (Master Access / Override)</option>
-        </select>
-        <div id="roleDisplay" class="role-badge">Active View: Regular User Mode</div>
-    </div>
-
     <!-- FEATURE 1: Create Cloud Storage Slot -->
     <div class="section">
         <h3>1. Create Storage Bucket</h3>
@@ -69,7 +57,7 @@
 
         <label style="font-weight: bold; color: #555; margin-top: 10px; display:block;">Choose File:</label>
         <input type="file" id="fileInput">
-        <button onclick="uploadFile()">Submit File</button>
+        <button onclick="uploadFile()">Submit File</button> <!-- Changed text to 'Submit File' based on problem statement -->
     </div>
 
     <!-- FEATURE 4: Access Files Securely (Display & View) -->
@@ -80,7 +68,7 @@
         <!-- File Preview Panel -->
         <div id="previewPanel" class="preview-box">
             <strong style="color: #218838;">📄 File Preview Console</strong>
-            <p id="previewContent" style="margin: 5px 0 0 0; font-family: monospace; font-size: 14px; text-align: left;"></p>
+            <p id="previewContent" style="margin: 5px 0 0 0; font-family: monospace; font-size: 14px;"></p>
         </div>
     </div>
 </div>
@@ -89,24 +77,6 @@
     let isStorageCreated = false;
     let cloudStorageBucket = "";
     let uploadedFiles = [];
-    let currentRole = "Regular User";
-
-    function toggleUserRole() {
-        currentRole = document.getElementById('currentUserRole').value;
-        const roleDisplay = document.getElementById('roleDisplay');
-        
-        if(currentRole === "Admin") {
-            roleDisplay.innerText = "Active View: 👑 Admin Mode (Master Override Active)";
-            roleDisplay.style.background = "#dc3545";
-            roleDisplay.style.color = "#fff";
-        } else {
-            roleDisplay.innerText = "Active View: 👤 Regular User Mode";
-            roleDisplay.style.background = "#ffc107";
-            roleDisplay.style.color = "#000";
-        }
-        displayFiles();
-        document.getElementById('previewPanel').style.display = "none";
-    }
 
     function createStorage() {
         const bucketInput = document.getElementById('bucketName');
@@ -137,7 +107,6 @@
             return;
         }
 
-        // FIXED LINE: Native Web API syntax update
         const fileName = fileInput.files[0].name; 
         const targetFolder = folderSelect.value;
         const accessPermission = permissionSelect.value;
@@ -167,7 +136,7 @@
         if (uploadedFiles.length === 0) {
             fileListDiv.innerHTML = "📂 <b>" + cloudStorageBucket + "</b> is empty. No files uploaded yet.";
         } else {
-            let htmlContent = `<p style='margin:0 0 10px 0; font-weight:bold; color:#333; text-align: left;'>📁 Storage Bucket: ${cloudStorageBucket}</p><ul style='text-align: left;'>`;
+            let htmlContent = `<p style='margin:0 0 10px 0; font-weight:bold; color:#333;'>📁 Storage Bucket: ${cloudStorageBucket}</p><ul>`;
             
             uploadedFiles.forEach((file, index) => {
                 htmlContent += `
@@ -185,18 +154,21 @@
         }
     }
 
+    // Function to simulate securely viewing the file
     function viewFile(index) {
         const file = uploadedFiles[index];
         const previewPanel = document.getElementById('previewPanel');
         const previewContent = document.getElementById('previewContent');
         
-        if (file.permission === "Private (Owner Only)" && currentRole !== "Admin") {
-            alert("🔒 Access Denied: This file is Private! Only the Owner or an Administrator can view it.");
-            previewPanel.style.display = "none";
-            return;
-        }
-        
         previewPanel.style.display = "block";
-        let statusMsg = currentRole === "Admin" ? "⚠️ Master Override Granted via Admin Mode" : "Decrypted Securely via Token [" + file.secureToken + "]";
-        
         previewContent.innerHTML = `
+            <strong>Status:</strong> Decrypted Securely via Token [${file.secureToken}]<br>
+            <strong>Path:</strong> cloud://data-center/${cloudStorageBucket}/${file.folder}/${file.name}<br>
+            <strong>Access Level:</strong> ${file.permission}<br>
+            <span style="color:#666;"><i>(Note: Simulation file stream opened successfully)</i></span>
+        `;
+    }
+</script>
+
+</body>
+</html>
