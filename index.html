@@ -17,7 +17,7 @@
         ul { padding-left: 0; list-style: none; margin: 0; }
         li { margin-bottom: 12px; color: #444; font-size: 15px; display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
         .badge { background: #e3f2fd; color: #0d47a1; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 5px; }
-        .view-btn { width: auto; padding: 5px 10px; margin: 0; background-color: #28a745; font-size: 12px; }
+        .view-btn { width: auto; padding: 5px 10px; margin: 0; background-color: #28a745; font-size: 12px; color: white; border-radius: 4px; border: none; cursor: pointer; }
         .view-btn:hover { background-color: #218838; }
         .preview-box { display: none; margin-top: 15px; padding: 15px; background: #e9ecef; border-left: 5px solid #28a745; border-radius: 4px; }
         .role-badge { display: inline-block; padding: 5px 10px; font-weight: bold; border-radius: 4px; background: #ffc107; color: #000; margin-bottom: 10px; }
@@ -80,7 +80,7 @@
         <!-- File Preview Panel -->
         <div id="previewPanel" class="preview-box">
             <strong style="color: #218838;">📄 File Preview Console</strong>
-            <p id="previewContent" style="margin: 5px 0 0 0; font-family: monospace; font-size: 14px;"></p>
+            <p id="previewContent" style="margin: 5px 0 0 0; font-family: monospace; font-size: 14px; text-align: left;"></p>
         </div>
     </div>
 </div>
@@ -89,8 +89,6 @@
     let isStorageCreated = false;
     let cloudStorageBucket = "";
     let uploadedFiles = [];
-
-    // Tracks current simulation role
     let currentRole = "Regular User";
 
     function toggleUserRole() {
@@ -106,7 +104,6 @@
             roleDisplay.style.background = "#ffc107";
             roleDisplay.style.color = "#000";
         }
-        // Refresh display permissions on role change
         displayFiles();
         document.getElementById('previewPanel').style.display = "none";
     }
@@ -140,6 +137,7 @@
             return;
         }
 
+        // FIXED LINE: Native Web API syntax update
         const fileName = fileInput.files[0].name; 
         const targetFolder = folderSelect.value;
         const accessPermission = permissionSelect.value;
@@ -169,7 +167,7 @@
         if (uploadedFiles.length === 0) {
             fileListDiv.innerHTML = "📂 <b>" + cloudStorageBucket + "</b> is empty. No files uploaded yet.";
         } else {
-            let htmlContent = `<p style='margin:0 0 10px 0; font-weight:bold; color:#333;'>📁 Storage Bucket: ${cloudStorageBucket}</p><ul>`;
+            let htmlContent = `<p style='margin:0 0 10px 0; font-weight:bold; color:#333; text-align: left;'>📁 Storage Bucket: ${cloudStorageBucket}</p><ul style='text-align: left;'>`;
             
             uploadedFiles.forEach((file, index) => {
                 htmlContent += `
@@ -192,14 +190,13 @@
         const previewPanel = document.getElementById('previewPanel');
         const previewContent = document.getElementById('previewContent');
         
-        // ADMIN SECURITY OVERRIDE LOGIC:
-        // If file is private and user is NOT Admin, block access.
         if (file.permission === "Private (Owner Only)" && currentRole !== "Admin") {
             alert("🔒 Access Denied: This file is Private! Only the Owner or an Administrator can view it.");
             previewPanel.style.display = "none";
             return;
         }
         
-        // Allowed if Public, Shared, or if current active role is Admin
         previewPanel.style.display = "block";
         let statusMsg = currentRole === "Admin" ? "⚠️ Master Override Granted via Admin Mode" : "Decrypted Securely via Token [" + file.secureToken + "]";
+        
+        previewContent.innerHTML = `
